@@ -124,6 +124,10 @@ class _MultiSelectDialogState<T> extends State<MultiSelectDialog<T>> {
 
   _MultiSelectDialogState(this._items);
 
+  bool get _isMaxSelectionNotReached => widget.maxSelectedItems == null
+      ? true
+      : (_selectedValues.length + 1) <= widget.maxSelectedItems!;
+
   @override
   void initState() {
     super.initState();
@@ -161,19 +165,21 @@ class _MultiSelectDialogState<T> extends State<MultiSelectDialog<T>> {
         ),
         controlAffinity: ListTileControlAffinity.leading,
         onChanged: (checked) {
-          setState(() {
-            _selectedValues = widget.onItemCheckedChange(
-                _selectedValues, item.value, checked!);
-
-            if (checked) {
-              item.selected = true;
-            } else {
-              item.selected = false;
-            }
-            if (widget.separateSelectedItems) {
-              _items = widget.separateSelected(_items);
-            }
-          });
+          if(_isMaxSelectionNotReached) {
+            setState(() {
+              _selectedValues = widget.onItemCheckedChange(
+                  _selectedValues, item.value, checked!);
+  
+              if (checked) {
+                item.selected = true;
+              } else {
+                item.selected = false;
+              }
+              if (widget.separateSelectedItems) {
+                _items = widget.separateSelected(_items);
+              }
+            });
+          }
           if (widget.onSelectionChanged != null) {
             widget.onSelectionChanged!(_selectedValues);
           }
